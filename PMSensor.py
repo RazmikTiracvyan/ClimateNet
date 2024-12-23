@@ -1,21 +1,26 @@
-import serial
-import time
+# Importing necessary libraries and modules
+import board  # Provides access to the I2C interface and other board-related hardware functions
+import time  # Provides time-related functions, such as delays
+from adafruit_bme280 import basic as adafruit_bme280  # Imports the Adafruit library for the BME280 sensor in basic mode
 
-class PM25Sensor:
-    def __init__(self, port='/dev/serial0', baudrate=9600, timeout=1):
-        self.ser = serial.Serial(port, baudrate=baudrate, timeout=timeout)
+# Define a class to manage interactions with the BME280 sensor
+class BME280:
+    def init(self):  # Constructor method called when an instance of the class is created
+        # Initialize the I2C interface using the I2C pins on the board
+        self.i2c = board.I2C()
+        # Create an instance of the BME280 sensor object using the I2C interface
+        # The address 0x76 is the default I2C address for the BME280 sensor
+        self.bme280 = adafruit_bme280.Adafruit_BME280_I2C(self.i2c, 0x76)
 
-    def read_sensor_data(self):
-        request_frame = b'\x42\x4d\x00\x00\x00\x00\x00\x00\x00\x00'
-        self.ser.write(request_frame)
-        time.sleep(1)
+    # Method to read data from the BME280 sensor
+    def read_bme_data(self):
+        # Returns a tuple containing temperature (in Celsius), 
+        # relative humidity (in %), and pressure (in hPa)
+        return self.bme280.temperature, self.bme280.relative_humidity, self.bme280.pressure
 
-        data = self.ser.read(32)
+# Create an instance of the BME280 class
+sensor = BME280()
 
-        if len(data) == 32 and data[0] == 0x42 and data[1] == 0x4d:
-            pm2_5 = data[10] * 256 + data[11]  # PM2.5
-            pm10 = data[12] * 256 + data[13]  # PM10
-            return(f"PM2.5: {pm2_5} µg/m³, PM10: {pm10} µg/m³")
-        else:
-            print("error")
-
+# Call the read_bme_data method to retrieve sensor data
+# and print the temperature, humidity, and pressure readings
+print(sensor.read_bme_data())Ï
