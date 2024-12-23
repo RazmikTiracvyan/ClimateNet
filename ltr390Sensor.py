@@ -1,21 +1,24 @@
-import time
-import board
-import adafruit_ltr390
+# Import necessary modules
+import time  # For time-related functions like delays
+import board  # For accessing board-related I2C pins
+import adafruit_ltr390  # For interfacing with the LTR390 UV and light sensor
 
-class LTR390Sensor:
-    def __init__(self, i2c_bus=None):
-        self.i2c = i2c_bus if i2c_bus else board.I2C()
-        self.ltr390 = adafruit_ltr390.LTR390(self.i2c)
-        
+# Define a class to interface with the LTR390 sensor
+class LTR390:
+    def init(self):  # Constructor to initialize the sensor
+        # Set up the I2C interface using the board's SCL and SDA pins
+        self.i2c = board.I2C()
+        # Initialize the LTR390 sensor on the I2C bus, assuming address 0x53
+        self.ltr = adafruit_ltr390.LTR390(self.i2c, 0x53)
 
-    
-    def read_uv_and_light(self):
-        uv_light = self.ltr390.uvs  
-        ambient_light = self.ltr390.light 
-        return  uv_light, ambient_light
+    # Method to read data from the LTR390 sensor
+    def read_ltr_data(self):
+        # Returns a tuple containing UV Index (UVI) and ambient light intensity (light level)
+        return self.ltr.uvi, self.ltr.light
 
-    def read_data(self):
-        uv_light, ambient_light = self.read_uv_and_light()
-        print(f"LTR390 Sensor -> UV Light Intensity: {uv_light}")
-        print(f"LTR390 Sensor -> Ambient Light Intensity: {ambient_light}")
-        print("*************************")
+# Create an instance of the LTR390 class
+sensor = LTR390()
+
+# Call the read_ltr_data method to retrieve sensor data
+# and print the UV Index and light level readings
+print(sensor.read_ltr_data())
